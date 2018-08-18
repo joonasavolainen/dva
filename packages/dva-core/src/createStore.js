@@ -21,9 +21,9 @@ export default function({
 
   const extraMiddlewares = plugin.get('onAction');
   const middlewares = setupMiddlewares([
+    ...flatten(extraMiddlewares),
     promiseMiddleware,
     sagaMiddleware,
-    ...flatten(extraMiddlewares),
   ]);
 
   let devtools = () => noop => noop;
