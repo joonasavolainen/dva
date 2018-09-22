@@ -39,19 +39,19 @@ if (buildUmdCleanCode === 1) {
   process.exit(1);
 }
 
-const { code: buildUmdCode } = shell.exec('npm run build:umd');
-if (buildUmdCode === 1) {
-  console.error('Failed: npm run build:umd');
-  process.exit(1);
-}
-
-const { code: buildUmdProductionCode } = shell.exec(
-  'npm run build:umd:production'
-);
-if (buildUmdProductionCode === 1) {
-  console.error('Failed: npm run build:umd:production');
-  process.exit(1);
-}
+// const { code: buildUmdCode } = shell.exec('npm run build:umd');
+// if (buildUmdCode === 1) {
+//   console.error('Failed: npm run build:umd');
+//   process.exit(1);
+// }
+//
+// const { code: buildUmdProductionCode } = shell.exec(
+//   'npm run build:umd:production'
+// );
+// if (buildUmdProductionCode === 1) {
+//   console.error('Failed: npm run build:umd:production');
+//   process.exit(1);
+// }
 
 const cp = fork(
   join(process.cwd(), 'node_modules/.bin/lerna'),
@@ -78,7 +78,17 @@ function publishToNpm() {
   console.log(`repos to publish: ${updatedRepos.join(', ')}`);
   updatedRepos.forEach(repo => {
     shell.cd(join(cwd, 'packages', repo));
-    console.log(`[${repo}] npm publish`);
-    shell.exec(`npm publish`);
+    const { version } = require(join(cwd, 'packages', repo, 'package.json'));
+    if (
+      version.includes('-rc.') ||
+      version.includes('-beta.') ||
+      version.includes('-alpha.')
+    ) {
+      console.log(`[${repo}] npm publish --tag next`);
+      shell.exec(`npm publish --tag next`);
+    } else {
+      console.log(`[${repo}] npm publish`);
+      shell.exec(`npm publish`);
+    }
   });
 }
